@@ -58,8 +58,8 @@ def Insert(request, id):
     evolution_data[number] = pokemon_data
 
     SavePokemon(pokemon_data, evo_chain['id'])
+
     while len(evolutions) > 0:
-        #url changing
         url_pokemon2 = 'https://pokeapi.co/api/v2/pokemon/'
         pokemon_data2 = {
             "id": '',
@@ -87,6 +87,7 @@ def Insert(request, id):
         evolutions = evolutions[0]['evolves_to'] # Considering only one type of evolution
 
     try:
+
         evolution = Evolution.objects.get(evo_id=evo_chain['id'])
     except Evolution.DoesNotExist:
         evolution = Evolution(evo_id=evo_chain['id'])
@@ -110,7 +111,6 @@ def SavePokemon(poke_data, evo_chain):
     return True
 
 
-
 class TemplatePokemonView(TemplateView):
 	template_name = './index_pokemon.html'
 
@@ -121,7 +121,7 @@ def Search(request):
     if request.method == 'POST':
         post = request.POST
         poke_name = post['poke_name']
-        
+
         try:
             pokemon = Pokemon.objects.get(name=poke_name)
             data['id'] = pokemon.poke_id
@@ -139,7 +139,6 @@ def Search(request):
                 data['evolution'] = {''}
         except Pokemon.DoesNotExist:
             data = {'error':True}
-
 
     else:
         data = {'error':True}
