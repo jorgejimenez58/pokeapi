@@ -1,0 +1,128 @@
+{% load static %}
+
+<html lang="en" dir="ltr">
+	<head>
+		<title>Pokedex</title>
+		<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+		<script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <style media="screen">
+      thead th{
+        text-align: center !important;
+      }
+    </style>
+  </head>
+	<body>
+		<div id="body">
+      <form id="search_list">
+    		<div id="accordion">
+    			<div class="card">
+    				<div class="card-header">
+    					<div class="container-fluid">
+    						<div class="row">
+    							<div class="col-sm-12" >
+    								<div class="input-group">
+    									<input type="text" name="poke_name" placeholder="Buscar" class="form-control" >
+    								</div>
+    							</div>
+                  </div>
+    						</div>
+    					</div>
+    				</div>
+    			</div>
+        </form>
+        <div class="table-responsive">
+          <table  id="pokeTable" class="table table-bordered table-sm">
+            <thead class="thead-dark">
+              <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Stats</th>
+                <th>Height</th>
+                <th>Weight</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th id='poke_id'> </th>
+                <th id='name'> </th>
+                <th id='stats'></th>
+                <th id='height'> </th>
+                <th id='weight'> </th>
+              </tr>
+            </tbody>
+            <br>
+            <thead class="thead-dark">
+              <tr>
+                <th colspan="5" >Evolution</th>
+              </tr>
+            </thead>
+            <thead class="thead-dark">
+              <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Stats</th>
+                <th>Height</th>
+                <th>Weight</th>
+              </tr>
+            </thead>
+            <tbody id='evolution'>
+            </tbody>
+          </table >
+        </div>
+      </div>
+		<script type="text/javascript">
+      $( document ).ready(function() {
+        $("#search_list").submit(function(event){
+		        event.preventDefault();
+            $.ajax({
+    					type:"POST",
+    					url: "{% url 'search' %}",
+    					headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              data: {
+                poke_name: this.poke_name.value,
+              },
+    					success: function(e){
+                if (e['error']) {
+                  	alert('No Data');
+                } else {
+                  var table = document.getElementById("pokeTable");
+                  var poke_id = document.getElementById("poke_id");
+                  poke_id.innerHTML = e['id'];
+                  var name = document.getElementById("name");
+                  name.innerHTML = e['name'];
+                  var stats = document.getElementById("stats");
+                  base_stats = []
+                  for(var i in e['base_stats']){
+                    stats.innerHTML += '*'+i + ': '+ e['base_stats'][i] + '<br>';
+                  }
+                  var height = document.getElementById("height");
+                  height.innerHTML = e['height'];
+                  var weight = document.getElementById("weight");
+                  weight.innerHTML = e['weight'];
+                  // evolutions
+                  var evolution = document.getElementById("evolution");
+                  for(var i in e['evolution']){
+                    var tr = document.createElement("tr");
+                    for(var o in e['evolution'][i]){
+                        var th = document.createElement("th");
+                        if (typeof e['evolution'][i][o] == 'object') {
+                          for(var f in e['evolution'][i][o]){
+                            th.innerHTML += '*'+ f + ': '+ e['evolution'][i][o][f] + '<br>';
+                          }
+                        } else {
+                          th.innerHTML = e['evolution'][i][o];
+                        }
+                        tr.appendChild(th);
+                    }
+                    evolution.appendChild(tr);
+                  }
+
+                }
+    					}
+    				});
+  		    });
+      });
+		</script>
+	</body>
+</html>
